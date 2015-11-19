@@ -85,6 +85,7 @@
 		    <delete file="master.jar"/>
 		    <delete file="slave.jar"/>
 		    <delete file="powercap.jar"/>
+		    <delete file="tp.jar"/>
     </target>
 
     <!-- Run the tests -->
@@ -122,6 +123,16 @@
             <manifest>
                 <attribute name="Built-By" value="${user.name}"/>
                 <attribute name="Main-Class" value="experiment.PowerCappingExperiment"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="/usr/share/ant/lib/ant-junit.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="ssj.jar"/>
+        </jar>
+        <jar destfile="tp.jar">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Main-Class" value="experiment.ThroughputExperiment"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="bin"/>

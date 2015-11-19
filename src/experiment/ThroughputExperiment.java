@@ -40,15 +40,17 @@ import core.ExperimentOutput;
 import core.Constants.StatName;
 import core.Constants.TimeWeightedStatName;
 import datacenter.DataCenter;
-import datacenter.PowerCappingEnforcer;
 import datacenter.Server;
-import datacenter.PowerNapServer;
+
+// No longer needed for throughput experiment
+// import datacenter.PowerCappingEnforcer;
+// import datacenter.PowerNapServer;
 import datacenter.Core.CorePowerPolicy;
 import datacenter.Socket.SocketPowerPolicy;
 
-public class PowerCappingExperiment {
+public class ThroughputExperiment {
 
-	public PowerCappingExperiment(){
+	public ThroughputExperiment(){
 
 	}
 	
@@ -59,7 +61,7 @@ public class PowerCappingExperiment {
 		String serviceFile = workloadDir+"workloads/"+workload+".service.cdf";
 
 		// specify distribution
-		int cores = 4;
+		int cores = 1;
 		int sockets = 1;
 		// double targetRho = .5;
 		
@@ -96,16 +98,16 @@ public class PowerCappingExperiment {
 		// add experiment outputs
 		ExperimentOutput experimentOutput = new ExperimentOutput();
 		experimentOutput.addOutput(StatName.SOJOURN_TIME, .05, .95, .05, 5000);
-		experimentOutput.addOutput(StatName.SERVER_LEVEL_CAP, .05, .95, .05, 5000);
-		Experiment experiment = new Experiment("Power capping test", rand, experimentInput, experimentOutput);
+		// experimentOutput.addOutput(StatName.SERVER_LEVEL_CAP, .05, .95, .05, 5000);
+		Experiment experiment = new Experiment("Throughput test", rand, experimentInput, experimentOutput);
 		
 		// setup datacenter
 		DataCenter dataCenter = new DataCenter();
 		
-		// double capPeriod = 1.0;
-		// double globalCap = 65*nServers;
-		// double maxPower = 100*nServers;
-		// double minPower = 59*nServers;
+		double capPeriod = 1.0;
+		double globalCap = 65*nServers;
+		double maxPower = 100*nServers;
+		double minPower = 59*nServers;
 		// PowerCappingEnforcer enforcer = new PowerCappingEnforcer(experiment, capPeriod, globalCap, maxPower, minPower);
 		for(int i = 0; i < nServers; i++) {
 			Server server = new Server(sockets, cores, experiment, arrivalGenerator, serviceGenerator);
@@ -113,19 +115,19 @@ public class PowerCappingExperiment {
 
 			server.setSocketPolicy(SocketPowerPolicy.NO_MANAGEMENT);
 			server.setCorePolicy(CorePowerPolicy.NO_MANAGEMENT);	
-			// double coreActivePower = 40 * (4.0/5)/cores;
-			// double coreHaltPower = coreActivePower*.2;
-			// double coreParkPower = 0;
+			double coreActivePower = 40 * (4.0/5)/cores;
+			double coreHaltPower = coreActivePower*.2;
+			double coreParkPower = 0;
 
-			// double socketActivePower = 40 * (1.0/5)/sockets;
-			// double socketParkPower = 0;
+			double socketActivePower = 40 * (1.0/5)/sockets;
+			double socketParkPower = 0;
 
-			// server.setCoreActivePower(coreActivePower);
-			// server.setCoreParkPower(coreParkPower);
-			// server.setCoreIdlePower(coreHaltPower);
+			server.setCoreActivePower(coreActivePower);
+			server.setCoreParkPower(coreParkPower);
+			server.setCoreIdlePower(coreHaltPower);
 
-			// server.setSocketActivePower(socketActivePower);
-			// server.setSocketParkPower(socketParkPower);
+			server.setSocketActivePower(socketActivePower);
+			server.setSocketParkPower(socketParkPower);
 			// enforcer.addServer(server);
 			dataCenter.addServer(server);
 		}//End for i
@@ -141,14 +143,15 @@ public class PowerCappingExperiment {
 		System.out.println("Response Mean: " + responseTimeMean);
 		double responseTime95th = experiment.getStats().getStat(StatName.SOJOURN_TIME).getQuantile(.95);
 		System.out.println("Response 95: " + responseTime95th);
+    System.out.println("Scaled QPS: " + scaledQps);
 		// double averageServerLevelCap = experiment.getStats().getStat(StatName.SERVER_LEVEL_CAP).getAverage();
 		// System.out.println("Average Server Cap : " + averageServerLevelCap);
 		
 	}//End run()
 	
 	public static void main(String[] args) {
-		PowerCappingExperiment exp  = new PowerCappingExperiment();
+		ThroughputExperiment exp  = new ThroughputExperiment();
 		exp.run(args[0],args[1],Integer.valueOf(args[2]),Double.valueOf(args[3]));
 	}
 	
-}//End PowerCappingExperiment
+}//End ThroughputExperiment
