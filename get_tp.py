@@ -120,7 +120,7 @@ def createExperiment(targetRho, arrivalFile, serviceFile):
   return experiment
 
 ### MAIN ####
-target_mean = 0.15
+target_mean = 0.10 * 2.00
 networks = ['wifi', 'lte', '3g']
 cpu_percentage = [0, 30, 70, 100]
 methods = ['sq', 'ns']
